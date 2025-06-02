@@ -1,0 +1,11 @@
+{
+    "servers": {
+        "github": {
+            "command": "/Users/zhangmao/github/github-mcp-server/cmd/github-mcp-server/github-mcp-server",
+            "args": ["stdio"],
+            "env": {
+            "GITHUB_PERSONAL_ACCESS_TOKEN": "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"
+            }
+        }
+    }
+}
