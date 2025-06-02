@@ -1,7 +1,7 @@
 {
     "servers": {
         "github": {
-            "command": "/Users/zhangmao/github/github-mcp-server/cmd/github-mcp-server/github-mcp-server",
+            "command": "xxx/github-mcp-server/cmd/github-mcp-server/github-mcp-server",
             "args": ["stdio"],
             "env": {
             "GITHUB_PERSONAL_ACCESS_TOKEN": "xxx"
