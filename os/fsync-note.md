@@ -53,10 +53,13 @@ sequenceDiagram
 
 在使用数据库 `PostgreSQL` 的过程中，如果由于底层存储的错误导致出现数据损坏的情况，那么 `PostgreSQL` 也有一定的责任，与这个情况相关的讨论邮件：[PostgreSQL fsync error](https://www.postgresql.org/message-id/CAMsr+YHh+5Oq4xziwwoEfhoTZgr07vdGG+hu=1adXx59aTeaoQ@mail.gmail.com).
 
-具体地，当 PostgreSQL 推进新 checkpoint 操作并再次调用 fsync 时，由于之前的 fsync 已经将脏页写回错误清除，使得这次 fsync 调用返回成功，然后进一步完成 checkpoint 操作（WAL 中 REDO 指针前移），但之前的脏页数据可能并未真正写入磁盘从而导致数据的丢失。
+具体地，当 PostgreSQL 重试 checkpoint 操作时也会重试 fsync，由于之前的 fsync 调用已经将脏页写回错误的标记清除，使得这次 fsync 调用返回成功，进一步完成 checkpoint 操作（WAL 中 REDO 指针前移），但之前的脏页数据可能并未真正写入磁盘从而导致数据的丢失。
 
-因此，对数据文件/WAL 的 fsync 返回 EIO 时，PostgreSQL 应立即 PANIC，停止推进 `checkpoint` 并保留 WAL；不要把后续 “成功的” 重试当成所有的修改数据已安全落盘的证据。
+PostgreSQL 对 fsync 的不正确使用已经有 20 年的历史了[2]。
 
-## References
+因此，对数据文件/WAL 的 fsync 返回 EIO 时，PostgreSQL 应立即 PANIC，停止推进 `checkpoint` 并保留 WAL；不要把后续 “成功的” 重试当成之前所有数据的修改已安全落盘的证据。
 
-1. Can Applications Recover from fsync Failures?
+## references
+
+1. Can Applications Recover from fsync Failures? ATC 2020.
+2. https://archive.fosdem.org/2019/schedule/event/postgresql_fsync/. 2019.
