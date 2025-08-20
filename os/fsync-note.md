@@ -1,4 +1,3 @@
-
 # `fsync`
 
 `OS` 中 [`fsync()`](https://man7.org/linux/man-pages/man2/fsync.2.html) 系统函数的实现原理。
