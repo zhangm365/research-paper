@@ -56,9 +56,11 @@ sequenceDiagram
 
 具体地，当 `PostgreSQL` 重试 `checkpoint` 操作时也会重试 `fsync`，因为之前的 `fsync` 调用已经将脏页写回错误的标记清除，使得这次 `fsync` 调用返回成功，进一步完成 `checkpoint` 操作（`WAL` 中 `REDO` 指针前移并删除旧 `WAL` 文件），但之前的脏页数据可能并未真正写入磁盘从而导致数据的丢失。
 
+>> 定期执行 checkpoint 操作并删除旧 `WAL` 文件，避免 `WAL` 日志膨胀占用过多的空间。
+
 `PostgreSQL` 对 `fsync` 的错误使用已经有 20 年的历史了[2]。
 
-因此，对数据文件/`WAL` 的 `fsync` 返回 `EIO` 时，`PostgreSQL` 应立即 `PANIC`，停止推进 `checkpoint` 并保留 `WAL`；不要把后续 “成功的” 重试当成之前所有数据的修改已安全落盘的证据。
+因此，对数据文件/`WAL` 的 `fsync` 返回 `EIO` 时，`PostgreSQL` 应立即 `PANIC`，停止推进 `checkpoint` 并保留 `WAL` 文件；不要把后续 “成功的” 重试当成之前所有数据的修改已安全落盘的证据。
 
 ## references
 
